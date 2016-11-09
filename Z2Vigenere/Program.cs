@@ -50,15 +50,53 @@ namespace Z2Vigenere
         {
             table = GetTable();
             explicitText = GetExplicitTextFromFile();
+
             var encodedText = EncodeText(explicitText, keyword);
             var decodedText = EncodeText(encodedText, RevertKeyword(keyword));
 
             Console.WriteLine("Encoded text: ");
             Console.WriteLine(encodedText);
             Console.WriteLine();
+            Console.WriteLine("Decoded text: ");
             Console.WriteLine(decodedText);
 
             Console.ReadLine();
+        }
+
+        private static string EncodeText(string text, string keyword)
+        {
+            StringBuilder encodedText = new StringBuilder();
+            var pairs = CreatePairs(text, keyword);
+
+            foreach (var item in pairs)
+            {
+                if (!Char.IsWhiteSpace(item.Key))
+                {
+                    int x = alphabet[item.Key];
+                    int y = alphabet[item.Value];
+
+                    encodedText.Append(table[x, y]);
+                }
+                else
+                {
+                    encodedText.Append(item.Key);
+                }
+            }
+
+            return encodedText.ToString();
+        }
+
+        private static string RevertKeyword(string keyword)
+        {
+            StringBuilder revertedKeyword = new StringBuilder();
+
+            foreach (var item in keyword)
+            {
+                var i = (alphabet.Count - alphabet[item]) % alphabet.Count;
+                revertedKeyword.Append(alphabet.FirstOrDefault(x => x.Value == i).Key);
+            }
+
+            return revertedKeyword.ToString();
         }
 
         private static char[,] GetTable()
@@ -118,42 +156,6 @@ namespace Z2Vigenere
             }
 
             return pairs;
-        }
-
-        private static string EncodeText(string text, string keyword)
-        {
-            StringBuilder encodedText = new StringBuilder();
-            var pairs = CreatePairs(text, keyword);
-
-            foreach (var item in pairs)
-            {
-                if (!Char.IsWhiteSpace(item.Key))
-                {
-                    int x = alphabet[item.Key];
-                    int y = alphabet[item.Value];
-
-                    encodedText.Append(table[x, y]);
-                }
-                else
-                {
-                    encodedText.Append(item.Key);
-                }
-            }
-
-            return encodedText.ToString();
-        }
-
-        private static string RevertKeyword(string keyword)
-        {
-            StringBuilder revertedKeyword = new StringBuilder();
-
-            foreach (var item in keyword)
-            {
-                var i = (alphabet.Count - alphabet[item]) % alphabet.Count;
-                revertedKeyword.Append(alphabet.FirstOrDefault(x => x.Value == i).Key);
-            }
-
-            return revertedKeyword.ToString();
         }
 
         private static void PrintTable()
