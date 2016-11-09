@@ -45,15 +45,18 @@ namespace Z2Vigenere
         private static string keyword = "tajne";
         private static char[,] table;
         private static string explicitText;
-        private static List<KeyValuePair<char, char>> pairs;
 
         static void Main(string[] args)
         {
             table = GetTable();
             explicitText = GetExplicitTextFromFile();
-            pairs = CreatePairs();
+            var encodedText = EncodeText(explicitText, keyword);
+            var decodedText = EncodeText(encodedText, RevertKeyword(keyword));
 
-            Console.Write(EncodeText());
+            Console.WriteLine("Encoded text: ");
+            Console.WriteLine(encodedText);
+            Console.WriteLine();
+            Console.WriteLine(decodedText);
 
             Console.ReadLine();
         }
@@ -92,12 +95,12 @@ namespace Z2Vigenere
             return String.Empty;
         }
 
-        private static List<KeyValuePair<char, char>> CreatePairs()
+        private static List<KeyValuePair<char, char>> CreatePairs(string text, string keyword)
         {
             List<KeyValuePair<char, char>> pairs = new List<KeyValuePair<char, char>>();
             int i = 0;
 
-            foreach (var item in explicitText.ToLower())
+            foreach (var item in text.ToLower())
             {
                 if (!Char.IsWhiteSpace(item))
                 {
@@ -117,9 +120,10 @@ namespace Z2Vigenere
             return pairs;
         }
 
-        private static string EncodeText()
+        private static string EncodeText(string text, string keyword)
         {
             StringBuilder encodedText = new StringBuilder();
+            var pairs = CreatePairs(text, keyword);
 
             foreach (var item in pairs)
             {
@@ -139,6 +143,19 @@ namespace Z2Vigenere
             return encodedText.ToString();
         }
 
+        private static string RevertKeyword(string keyword)
+        {
+            StringBuilder revertedKeyword = new StringBuilder();
+
+            foreach (var item in keyword)
+            {
+                var i = (alphabet.Count - alphabet[item]) % alphabet.Count;
+                revertedKeyword.Append(alphabet.FirstOrDefault(x => x.Value == i).Key);
+            }
+
+            return revertedKeyword.ToString();
+        }
+
         private static void PrintTable()
         {
             for (int i = 0; i < table.GetLength(0); i++)
@@ -151,7 +168,7 @@ namespace Z2Vigenere
             }
         }
 
-        private static void PrintPairs()
+        private static void PrintPairs(List<KeyValuePair<char, char>> pairs)
         {
             foreach (var item in pairs)
             {
